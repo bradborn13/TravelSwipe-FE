@@ -37,7 +37,7 @@ This is currently the most popular way to build a professional-grade React/Node 
 
 Frontend: Next.js (App Router) + Tailwind CSS.
 
-Backend: Node.js (via Next.js API routes or a separate Express/Hono server).
+Backend: Node.js (via Nest.js ).
 
 API Layer: tRPC. This is the "magic" that allows your React components to call backend functions with 100% type safety—no more manual fetch calls or JSON parsing.
 

@@ -21,7 +21,7 @@ useEffect(() => {
       </Modal.Header>
 
       <Modal.Body>
-        <p>Modal body text goes here.</p>
+        <p>Modal body text goes here. duhh</p>
       </Modal.Body>
 
       <Modal.Footer>

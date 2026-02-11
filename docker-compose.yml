@@ -14,17 +14,31 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:5001
     restart: always
 
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secretpassword
+    ports:
+      - "27017:27017"
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env  # <- points to the child folder .env
     ports:
       - "5001:5001"
     volumes:
       - ./backend:/app
       - /app/node_modules
+    depends_on:
+      - mongodb
     environment:
-      - NODE_ENV=development
+      MONGO_URL: mongodb://admin:secretpassword@mongodb:27017/travelswipe?authSource=admin
     restart: always
-    git config --global user.email "bradborn13@yahoo.com"
-    git config --global user.name "bradborn13"
+
+volumes:
+  mongo_data: {}
