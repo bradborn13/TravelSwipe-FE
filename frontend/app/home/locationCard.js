@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaHeart, FaShareAlt } from 'react-icons/fa'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { Chip } from '@mui/material'
@@ -32,8 +32,7 @@ export default function LocationCard() {
       </Carousel>
     )
   }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  async function fetchLocationEvents() {
+  const fetchLocationEvents = useCallback(async () => {
     await fetch(`http://localhost:5001/locations/search?city=${query}`, {
       method: 'GET',
       headers: {
@@ -48,7 +47,7 @@ export default function LocationCard() {
         setData(data || [])
       })
       .catch((err) => console.error('Error fetching events:', err))
-  }
+  }, [query])
 
   async function handleUpdateActivityImages() {
     await fetch(`http://localhost:5001/locations/activity/update/images?city=${query}`, {

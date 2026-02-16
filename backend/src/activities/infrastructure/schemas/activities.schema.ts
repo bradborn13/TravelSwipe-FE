@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-export type LocationDocument = HydratedDocument<Location>;
+import { HydratedDocument, Types } from 'mongoose';
+export type ActivitiesDocument = HydratedDocument<Activities>;
 
-// 1. Define sub-schema for Categories
 @Schema({ _id: false })
 class Category {
   @Prop()
@@ -13,9 +12,8 @@ class Category {
   shortname!: string;
 }
 
-// 2. Define sub-schema for Location Details
 @Schema({ _id: false })
-class LocationDetails {
+class Details {
   @Prop()
   address!: string;
 
@@ -86,7 +84,9 @@ class ImageURL {
 }
 
 @Schema({ timestamps: true })
-export class Location {
+export class Activities {
+  _id?: Types.ObjectId;
+
   @Prop({ required: true })
   name!: string;
 
@@ -123,8 +123,8 @@ export class Location {
   @Prop()
   tel!: string;
 
-  @Prop({ type: LocationDetails })
-  details!: LocationDetails;
+  @Prop({ type: Details })
+  details!: Details;
 
   @Prop()
   distance!: number;
@@ -138,4 +138,4 @@ export class Location {
   @Prop({ type: SocialMedia })
   socialMedia?: SocialMedia;
 }
-export const LocationSchema = SchemaFactory.createForClass(Location);
+export const ActivitiesSchema = SchemaFactory.createForClass(Activities);

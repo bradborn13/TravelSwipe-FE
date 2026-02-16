@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { LocationsModule } from './locations/locations.module';
+import { ActivitiesModule } from './activities/activities.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 @Module({
@@ -12,7 +12,7 @@ import { MongooseModule } from '@nestjs/mongoose';
         uri: config.get<string>('MONGO_URL'),
       }),
     }),
-    LocationsModule,
+    ActivitiesModule,
   ],
 })
 export class AppModule {}

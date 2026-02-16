@@ -1,32 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
-import puppeteer from 'puppeteer';
-import cheerio from 'cheerio';
-import { Model } from 'mongoose';
-import { Location } from './infrastructure/schemas/location.schema';
 import { FoursquarePlace } from './dto/interfaces';
 import { mapFoursquareLocation } from './mappers/foursquare-location.mapper';
 import { FoursquareLocationDto } from './dto/foursquare-location.dto';
 import { getJson } from 'serpapi';
+import { ActivitiesRepository } from './activities.repository';
+import { Activities } from './infrastructure/schemas/activities.schema';
 
 @Injectable()
-export class LocationsService {
-  constructor(
-    @InjectModel(Location.name) private locationModel: Model<Location>,
-  ) {}
+export class ActivityService {
+  constructor(private readonly activitiesRepo: ActivitiesRepository) {}
   async scrapePhotoForLocation(city: string) {
     const amountOfPhotos = 6;
-    const activitiesByCity = await this.locationModel
-      .find({
-        city,
-        $or: [
-          { imagesURL: { $exists: false } },
-          { imagesURL: { $size: 0 } },
-          { imagesURL: null },
-        ],
-      })
-      .exec();
+    const activitiesByCity = await this.activitiesRepo.findWithoutImages(city);
     if (activitiesByCity.length === 0) {
       console.log(
         `Attractions for ${city} contain photos already, skipping scraping.`,
@@ -45,9 +31,10 @@ export class LocationsService {
         activity.city,
         amountOfPhotos,
       );
-      await this.locationModel.updateOne(
-        { name: activity.name, city: activity.city },
-        { imagesURL: photos },
+      await this.activitiesRepo.updateImagesURL(
+        activity.name,
+        activity.city,
+        photos,
       );
     });
   }
@@ -63,12 +50,11 @@ export class LocationsService {
         api_key: process.env.SERPAPI_KEY,
         q: activity,
         location: location,
-        gl: 'us', // Google Country
-        hl: 'en', // Google Language
+        gl: 'us',
+        hl: 'en',
       });
 
       const results = response.images_results || [];
-      console.log('SerpApi results:', results);
       return results.slice(0, amountOfPhotos).map((img: any) => ({
         image: img.original,
         originalHeight: img.original_height,
@@ -86,22 +72,19 @@ export class LocationsService {
     }
   }
 
-  async getLocations(city: string) {
-    const locationsByCity = await this.locationModel.find({ city }).exec();
-    console.log(`Found ${locationsByCity.length} locations for city: ${city}`);
+  async getActivities(city: string) {
+    const locationsByCity = await this.activitiesRepo.findActivity({
+      city: city,
+    });
     if (locationsByCity.length > 0) {
       return locationsByCity;
     } else {
-      return await this.SearchAndSaveLocations(city);
+      return await this.SearchAndStoreActivities(city);
     }
   }
 
   async FetchFourSquareLocations(city: string): Promise<FoursquarePlace[]> {
     try {
-      console.log(
-        'variable check :',
-        `${process.env.FOURSQUARE_BASE_URL}/places/search`,
-      );
       const response = await axios({
         method: 'GET',
         url: `${process.env.FOURSQUARE_BASE_URL}/places/search`,
@@ -122,19 +105,23 @@ export class LocationsService {
       return [];
     }
   }
-  async SearchAndSaveLocations(city: string) {
+  async SearchAndStoreActivities(city: string) {
     const rawResults: any = await this.FetchFourSquareLocations(city);
-    console.log('Raw results:', rawResults);
     if (!rawResults?.results || !Array.isArray(rawResults.results)) {
       console.error('Unexpected FSQ response structure:', rawResults);
-      return []; // Return empty instead of crashing
+      return [];
     }
-    const mappedLocations = rawResults.results.map(
+    if (rawResults.results.length === 0) {
+      console.log(`No activities found for city: ${city}`);
+      return [];
+    }
+    const mappedActivities: Activities[] = rawResults.results.map(
       (item: FoursquareLocationDto) => mapFoursquareLocation(item, city),
     );
-    if (mappedLocations.length > 0) {
-      await this.locationModel.insertMany(mappedLocations);
-    }
-    return mappedLocations;
+    await this.activitiesRepo.bulkInsert(mappedActivities);
+    const locationsByCity = await this.activitiesRepo.findActivity({
+      city: city,
+    });
+    return locationsByCity;
   }
 }
