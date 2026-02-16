@@ -11,11 +11,11 @@ export class ActivitiesController {
 
   @ApiOkResponse({ type: [ActivitiesDto] })
   @Get('search')
-  async findActivities(@Query('city') query: FindActivitiesDto) {
+  async findActivities(@Query() query: FindActivitiesDto) {
     return await this.activityService.getActivities(query.city);
   }
 
-  @Get('activity/update/images')
+  @Get('update/images')
   async findPhotos(@Query('city') city: string) {
     return await this.activityService.scrapePhotoForLocation(city);
   }

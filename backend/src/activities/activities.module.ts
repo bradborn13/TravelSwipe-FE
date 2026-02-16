@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { ActivitiesController } from './activities.controller';
 import { ActivityService } from './activities.service';
 import { MongooseModule } from '@nestjs/mongoose';
+
+import { ActivitiesRepository } from './activities.repository';
 import {
-  ActivitiesSchema,
   Activities,
-} from './infrastructure/schemas/activities.schema';
+  ActivitiesSchema,
+} from './infrastructure/activities.schema';
 
 @Module({
   imports: [
@@ -14,6 +16,6 @@ import {
     ]),
   ],
   controllers: [ActivitiesController],
-  providers: [ActivityService],
+  providers: [ActivityService, ActivitiesRepository],
 })
 export class ActivitiesModule {}

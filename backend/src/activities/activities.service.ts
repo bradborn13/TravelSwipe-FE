@@ -5,11 +5,12 @@ import { mapFoursquareLocation } from './mappers/foursquare-location.mapper';
 import { FoursquareLocationDto } from './dto/foursquare-location.dto';
 import { getJson } from 'serpapi';
 import { ActivitiesRepository } from './activities.repository';
-import { Activities } from './infrastructure/schemas/activities.schema';
+import { Activities } from './infrastructure/activities.schema';
 
 @Injectable()
 export class ActivityService {
   constructor(private readonly activitiesRepo: ActivitiesRepository) {}
+
   async scrapePhotoForLocation(city: string) {
     const amountOfPhotos = 6;
     const activitiesByCity = await this.activitiesRepo.findWithoutImages(city);
@@ -25,18 +26,20 @@ export class ActivityService {
         return { name: location.name, city: location.city };
       });
 
-    updatedLocationsImages.map(async (activity) => {
-      const photos = await this.scrapePhotosForActivity(
-        activity.name,
-        activity.city,
-        amountOfPhotos,
-      );
-      await this.activitiesRepo.updateImagesURL(
-        activity.name,
-        activity.city,
-        photos,
-      );
-    });
+    await Promise.all(
+      updatedLocationsImages.map(async (activity) => {
+        const photos = await this.scrapePhotosForActivity(
+          activity.name,
+          activity.city,
+          amountOfPhotos,
+        );
+        await this.activitiesRepo.updateImagesURL(
+          activity.name,
+          activity.city,
+          photos,
+        );
+      }),
+    );
   }
 
   async scrapePhotosForActivity(

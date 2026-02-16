@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ActivitiesModule } from './activities/activities.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LocationsModule } from './locations/activities.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -13,6 +14,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
     }),
     ActivitiesModule,
+    LocationsModule,
   ],
 })
 export class AppModule {}

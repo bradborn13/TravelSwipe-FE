@@ -1,19 +1,26 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
 import { FaHeart, FaShareAlt } from 'react-icons/fa'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { Chip } from '@mui/material'
-import { Button } from '@mui/material'
+import { useAppSelector } from '../store/hooks'
+import { Box, Chip } from '@mui/material'
+import { Button, CircularProgress } from '@mui/material'
 import Carousel from 'react-bootstrap/Carousel'
 import Image from 'next/image'
+import axios from 'axios'
+import { green } from '@mui/material/colors'
+
 export default function LocationCard() {
-  const dispatch = useAppDispatch()
-
   const query = useAppSelector((state) => state.base.search)
-  const [activities, setData] = useState([])
-
-  function DarkVariantExample(images) {
-    console.log(images, 'IMAGES')
+  const [activities, setActivities] = useState({ data: [], loading: false })
+  const buttonSx = {
+    ...(activities.loading && {
+      bgcolor: green[500],
+      '&:hover': {
+        bgcolor: green[700],
+      },
+    }),
+  }
+  function ImageCarousel(images) {
     return (
       <Carousel data-bs-theme="dark" interval={null}>
         {images.map((img, index) => (
@@ -22,7 +29,10 @@ export default function LocationCard() {
               width={0}
               height={0}
               sizes="130vw"
-              src={img.image}
+              src={
+                img.image ??
+                'https://media.istockphoto.com/id/887464786/vector/no-cameras-allowed-sign-flat-icon-in-red-crossed-out-circle-vector.jpg?s=612x612&w=0&k=20&c=LVkPMBiZas8zxBPmhEApCv3UiYjcbYZJsO-CVQjAJeU='
+              }
               alt={`Slide ${index + 1}`}
               style={{ width: '100%', height: '300px', objectFit: 'cover' }}
               unoptimized
@@ -32,63 +42,88 @@ export default function LocationCard() {
       </Carousel>
     )
   }
-  const fetchLocationEvents = useCallback(async () => {
-    await fetch(`http://localhost:5001/locations/search?city=${query}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok')
-        return res.json()
-      })
-      .then((data) => {
-        setData(data || [])
-      })
-      .catch((err) => console.error('Error fetching events:', err))
+  const handleUpdateActivityImages = useCallback(async () => {
+    setActivities((prev) => ({ ...prev, loading: true }))
+    await new Promise((resolve) => setTimeout(resolve, 15000))
+
+    try {
+      await axios
+        .get(`http://localhost:5001/activities/update/images`, {
+          params: { city: query },
+        })
+        .then(async () => {
+          const response = await axios.get(`http://localhost:5001/activities/search`, {
+            params: { city: query },
+          })
+          setActivities((prev) => ({ ...prev, data: response.data }))
+        })
+    } catch (err) {
+      console.error('Error updating activity images:', err)
+    } finally {
+      setActivities((prev) => ({ ...prev, loading: false }))
+    }
   }, [query])
 
-  async function handleUpdateActivityImages() {
-    await fetch(`http://localhost:5001/locations/activity/update/images?city=${query}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok')
-        return res.json()
-      })
-      .then(async () => {
-        await fetchLocationEvents()
-      })
-      .catch((err) => console.error('Error updating images:', err))
-  }
   useEffect(() => {
+    async function fetchLocationEvents() {
+      setActivities((prev) => ({ ...prev, loading: true }))
+      try {
+        const response = await axios.get(`http://localhost:5001/activities/search`, {
+          params: { city: query },
+        })
+
+        const data = Array.isArray(response.data) ? response.data : []
+
+        setActivities((prev) => ({ ...prev, data: data }))
+      } catch (err) {
+        console.error('Error fetching events:', err)
+      } finally {
+        setActivities((prev) => ({ ...prev, loading: false }))
+      }
+    }
+
     if (query) {
       fetchLocationEvents()
     }
-  }, [dispatch, fetchLocationEvents, query])
-  // activity/update/images/:city
+  }, [query])
   return (
     <div className="p-4 ">
       <div className="text-gray-400 text-sm mb-2 justify-center flex gap-3">
-        City: {query} - found {activities?.length ?? 0} events
+        City: {query} - found {activities?.data.length ?? 0} events
       </div>
-      <Button className="my-4" variant="contained" onClick={async () => await handleUpdateActivityImages()}>
-        Update Images
-      </Button>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ m: 1, position: 'relative' }}>
+          <Button
+            variant="contained"
+            sx={buttonSx}
+            disabled={activities.loading}
+            onClick={async () => await handleUpdateActivityImages()}
+          >
+            Update Images
+          </Button>
+          {activities.loading && (
+            <CircularProgress
+              size={24}
+              sx={{
+                color: green[500],
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                marginTop: '-12px',
+                marginLeft: '-12px',
+              }}
+            />
+          )}
+        </Box>
+      </Box>
       <div className="flex gap-5 flex-row justify-start flex-wrap ">
-        {activities?.length > 0 ? (
-          activities.map((activity, index) => (
+        {activities?.data?.length > 0 ? (
+          activities.data?.map((activity, index) => (
             <div
               key={index}
               className="w-120 bg-gray-800 text-white rounded-xl overflow-hidden shadow-lg flex flex-col justify-between"
             >
-              {activity.imagesURL && activity.imagesURL.length > 0
-                ? DarkVariantExample(activity.imagesURL)
-                : null}
+              {activity.imagesURL && activity.imagesURL.length > 0 ? ImageCarousel(activity.imagesURL) : null}
               <div className="m-4">
                 <h2 className="text-lg font-bold">{activity.name}</h2>
                 <div className="text-sm text-gray-400">{activity.address}</div>

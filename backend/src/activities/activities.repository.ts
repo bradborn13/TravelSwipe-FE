@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ActivitiesDocument } from './infrastructure/schemas/activities.schema';
-import { Activities } from './infrastructure/schemas/activities.schema';
+import {
+  Activities,
+  ActivitiesDocument,
+} from './infrastructure/activities.schema';
 
 @Injectable()
 export class ActivitiesRepository {

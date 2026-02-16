@@ -1,5 +1,5 @@
 import { FoursquareLocationDto } from '../dto/foursquare-location.dto';
-import { Activities } from '../infrastructure/schemas/activities.schema';
+import { Activities } from '../infrastructure/activities.schema';
 
 export function mapFoursquareLocation(
   item: FoursquareLocationDto,
