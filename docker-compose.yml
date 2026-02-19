@@ -2,42 +2,20 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      args:
+        # This passes the variable to your Dockerfile "ARG" during 'yarn build'
+        - NEXT_PUBLIC_API_URL=http://localhost:5001
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:5001
-    restart: always
-
-  mongodb:
-    image: mongo:7
-    container_name: mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: secretpassword
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file:
-      - ./backend/.env
-    ports:
-      - "5001:5001"
-    depends_on:
-      - mongodb
-    environment:
-      MONGO_URL: mongodb://admin:secretpassword@mongodb:27017/travelswipe?authSource=admin
-    restart: always
-
-volumes:
-  mongo_data:
+      # These are for when the container is actually running
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:5001
+      HOSTNAME: 0.0.0.0
+      WATCHPACK_POLLING: 'true'
+      WATCHPACK_POLLING_INTERVAL: '1000'
+      CHOKIDAR_USEPOLLING: 'true'
