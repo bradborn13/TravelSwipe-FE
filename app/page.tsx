@@ -1,5 +1,5 @@
 import Search from './home/search'
-import LocationCard from './home/locationCard'
+import LocationCard from './home/LocationCard'
 
 export default function Home() {
   return (
