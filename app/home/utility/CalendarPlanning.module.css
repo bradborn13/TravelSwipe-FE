@@ -1,0 +1,136 @@
+.timelineColumn {
+  flex: 0 0 70%;
+}
+
+.timeGrid {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+}
+
+.timeLabel {
+  height: 32px;
+  font-size: 11px;
+  color: grey;
+  text-align: right;
+  padding-right: 10px;
+  padding-top: 6px;
+}
+
+.timeSlot {
+  height: 32px;
+  border-top: 1px solid #e5e0d8;
+  position: relative;
+  background: white;
+}
+
+.timeSlotHighlighted {
+  background: #f0f0f0;
+}
+
+.timeSlotCovered {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.04) 4px,
+    rgba(0, 0, 0, 0.04) 8px
+  );
+  pointer-events: none;
+}
+
+.eventBlock {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  right: 6px;
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.dragHandle {
+  flex: 1;
+  cursor: grab;
+  min-width: 0;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.eventTimeRange {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.eventToolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.8;
+}
+
+.durationAdjuster {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.adjustButton {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.adjustButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.durationText {
+  font-size: 10px;
+  opacity: 0.9;
+  min-width: 28px;
+  text-align: center;
+}
+
+.activitySidebar {
+  flex: 0 0 20%;
+}
+
+.activityItem {
+  cursor: grab;
+}
+
+.activityItemDragging {
+  opacity: 0.4;
+}

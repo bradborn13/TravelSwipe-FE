@@ -12,7 +12,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import GoogleIcon from '@mui/icons-material/Google'
 import FacebookIcon from '@mui/icons-material/Facebook'
@@ -21,6 +21,7 @@ enum AuthOption {
   Login = 1,
   Register = 2,
 }
+
 export interface AuthForm {
   email: string
   password: string
@@ -121,9 +122,9 @@ export default function Login() {
     setUserIsLogged((!!isTokenFound && isTokenFound.length > 0) || (!!isAuthToken && isAuthToken.length > 0))
   }, [])
   return (
-    <div className="flex justify-end ">
-      <Button variant="contained" onClick={handleAuth} className="bg-indigo-600 mb-">
-        {userIsLogged ? 'Log Out' : 'Sign Up Now'}
+    <div>
+      <Button onClick={handleAuth} color="inherit">
+        <Typography textTransform={'capitalize'}> {userIsLogged ? 'Log Out' : 'Sign Up '}</Typography>
       </Button>
 
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} fullWidth maxWidth="xs">
@@ -196,8 +197,8 @@ export default function Login() {
             </form>
           </Box>
 
-          <div className="w-full mt-6">
-            <Divider className="text-gray-400 text-xs pb-6 uppercase">Or sign up with</Divider>
+          <div className="w-full mt-4">
+            <Divider className="text-gray-400 text-xs pb-4 uppercase">Or sign up with</Divider>
 
             <div className="flex gap-4">
               <Button
@@ -228,7 +229,7 @@ export default function Login() {
           <Typography variant="body2" className="pt-3 text-gray-500">
             {authOption === AuthOption.Register ? 'Already have an account?' : 'Dont have an account?'}
             <span
-              className="text-indigo-500 cursor-pointer font-bold ml-1"
+              className="text-indigo-500 cursor-pointer font-bold mx-2"
               onClick={() =>
                 setAuthOption(authOption === AuthOption.Login ? AuthOption.Register : AuthOption.Login)
               }

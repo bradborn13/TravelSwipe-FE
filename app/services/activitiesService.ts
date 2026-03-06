@@ -1,14 +1,15 @@
 // lib/api.ts
-import useSWR from 'swr'
+import useSWR, { SWRResponse } from 'swr'
 import api from './api'
+import { Activity } from '../home/types/Activity'
 
 export const fetcher = (url: string) => api.get(url).then((res) => res.data)
 
-export function getActivitiesByCity(params: { city: string }) {
+export function getActivitiesByCity(params: { city: string }): SWRResponse<Activity[], any> {
   const shouldFetch = params.city.trim() !== ''
 
   return useSWR(shouldFetch ? ['/activities/search', params] : null, ([url, params]) =>
-    api.get(url, { params }).then((res) => res.data),
+    api.get<Activity[]>(url, { params }).then((res) => res.data),
   )
 }
 export function updateImagesForCityActivities(params: { city: string }) {

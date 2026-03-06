@@ -1,0 +1,75 @@
+:root {
+  --bg: #f7f4ef;
+  --card-dark: #1c2536;
+  --accent: #ff5c35;
+  --accent2: #ffb800;
+  --text: #1c2536;
+  --muted: #8a8f9e;
+  --white: #ffffff;
+  --tag-bg: #edeae4;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  background: var(--white);
+  border-bottom: 1px solid #e5e0d8;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.logo span {
+  color: var(--accent);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.btn-planner {
+  background: var(--card-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 100px;
+  padding: 9px 20px;
+  width: 8vw;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.btn-signup {
+  background: var(--accent);
+  color: var(--white) !important;
+  border: none;
+  width: 120px;
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}

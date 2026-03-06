@@ -1,74 +1,145 @@
 import Carousel from 'react-bootstrap/Carousel'
-import { Box, Chip, IconButton } from '@mui/material'
+import { Box, Card, Chip, IconButton, Typography } from '@mui/material'
 import { FaHeart, FaShareAlt } from 'react-icons/fa'
 import Image from 'next/image'
 import { useState } from 'react'
 import OpenInFullIcon from '@mui/icons-material/OpenInFull'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup } from '@/components/ui/map'
+import { MapPin } from 'lucide-react'
+import { Activity, ImageURL } from './types/Activity'
+import { ImageCarousel } from './components/ImageCarousel'
 
-export const ActivityCard = ({ activity }: { activity: any }) => {
-  const [minimize, setExpanded] = useState<boolean>(false)
-  function ImageCarousel(images: any) {
-    return (
-      <Carousel data-bs-theme="dark" interval={null}>
-        {images.map((img, index) => (
-          <Carousel.Item key={index}>
-            <Image
-              width={0}
-              height={0}
-              sizes="130vw"
-              src={
-                img.image ??
-                'https://media.istockphoto.com/id/887464786/vector/no-cameras-allowed-sign-flat-icon-in-red-crossed-out-circle-vector.jpg?s=612x612&w=0&k=20&c=LVkPMBiZas8zxBPmhEApCv3UiYjcbYZJsO-CVQjAJeU='
-              }
-              alt={`Slide ${index + 1}`}
-              style={{ width: '100%', height: '300px', objectFit: 'cover' }}
-              unoptimized
-            />
-          </Carousel.Item>
-        ))}
-      </Carousel>
-    )
-  }
+export const ActivityCard = ({ activity }: { activity: Activity }) => {
+  const [flipped, setFlipped] = useState(false)
+  console.log(activity, '0')
+  const [hover, setHover] = useState(false)
+  console.log(activity.imagesURL, '1')
+  console.log(Array.isArray(activity.imagesURL), '2')
+  const FlipButton = () => (
+    <Box sx={{ position: 'absolute', top: 12, right: 10 }}>
+      <IconButton
+        onClick={() => setFlipped(!flipped)}
+        sx={{
+          zIndex: 19,
+          background: 'grey',
+          ':hover': {
+            bgcolor: 'primary.main',
+            color: 'white',
+          },
+        }}
+      >
+        <OpenInFullIcon sx={{ color: 'white' }} />
+      </IconButton>
+    </Box>
+  )
 
   return (
-    <div className="w-120 h-auto bg-gray-800 text-white rounded-xl shadow-lg relative flex flex-column items-start">
-      <Box className="w-100">
-        <Box sx={{ position: 'absolute', top: 12, right: 10 }}>
-          <IconButton
-            aria-label="fingerprint"
-            color="secondary"
-            onClick={() => setExpanded(!minimize)}
-            sx={{ zIndex: 19 }}
-          >
-            <OpenInFullIcon sx={{ color: 'white' }} />
-          </IconButton>
-        </Box>
-        {activity.imagesURL && activity.imagesURL.length > 0
-          ? minimize
-            ? null
-            : ImageCarousel(activity.imagesURL)
-          : null}
-
-        <div className="m-4">
-          <h2 className="text-lg font-bold">{activity.name}</h2>
-          <div className="text-sm text-gray-400">{activity.address}</div>
-          <div className="mt-2 text-gray-200 text-sm flex flex-row flex-wrap  gap-1">
-            TAGS:
-            <div className="w-full" />
-            {activity.categories?.map((cat: any) => (
-              <Chip key={cat.id} label={cat.name} className="mr-2 w-max" color="warning" />
-            ))}
+    <div
+      className="w-98 rounded-lg shadow-lg flex flex-column items-start "
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        perspective: '1200px',
+        transformStyle: 'preserve-3d',
+        transition: hover
+          ? 'transform 0.2s, box-shadow 0.2s'
+          : 'transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1)',
+        transform: flipped ? 'rotateY(180deg)' : hover ? 'translateY(-4px)' : 'none',
+        boxShadow: hover ? '0 12px 32px rgba(0,0,0,0.09)' : '0 2px 8px rgba(0,0,0,0.04)',
+      }}
+    >
+      {!flipped ? (
+        <div
+          style={{
+            backfaceVisibility: 'hidden',
+            width: 'inherit',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <FlipButton />
+          {activity.imagesURL && activity.imagesURL.length > 0 ? (
+            <ImageCarousel images={activity.imagesURL} />
+          ) : null}
+          <div className="mx-3 mt-2 flex-1 flex flex-column gap-2 justify-between">
+            <div className="flex flex-column gap-3 ">
+              <Typography style={{ fontSize: '27px', fontWeight: 700, fontFamily: 'Playfair Display' }}>
+                {activity.name}
+              </Typography>
+              <div className="text-sm text-gray-400 flex justify-start align-middle">
+                <LocationOnIcon />
+                <Typography>{activity.address}</Typography>
+              </div>
+              <div className="mt-2 mb-3 text-sm flex flex-row flex-wrap  gap-1 ">
+                {activity.categories?.map((cat) => (
+                  <Chip
+                    key={cat.id}
+                    label={cat.name}
+                    sx={{ color: '#FF5C35', fontSize: '11px', fontWeight: 500, background: '##EDEAE4' }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="py-2 flex gap-3 b-0 ">
+              <button className="flex items-center gap-1 hover:text-red-400 transition">
+                <FaHeart /> Like
+              </button>
+              <button className="flex items-center gap-1 hover:text-blue-400 transition">
+                <FaShareAlt /> Share
+              </button>
+            </div>
           </div>
         </div>
-        <div className="px-4 py-2 flex gap-2 border-t border-gray-700 ">
-          <button className="flex items-center gap-1 hover:text-red-400 transition">
-            <FaHeart /> Like
-          </button>
-          <button className="flex items-center gap-1 hover:text-blue-400 transition">
-            <FaShareAlt /> Share
-          </button>
+      ) : (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+          }}
+        >
+          <FlipButton />
+          <Card style={{ height: '300px' }}>
+            <Map center={[activity.longitude, activity.latitude]} zoom={15} theme={'light'}>
+              <MapMarker longitude={activity.longitude} latitude={activity.latitude}>
+                <MarkerContent>
+                  <div className="cursor-move">
+                    <MapPin className="fill-black stroke-white dark:fill-white" size={28} />
+                  </div>
+                </MarkerContent>
+                <MarkerPopup>{activity.name}</MarkerPopup>
+              </MapMarker>
+              <MapControls />
+            </Map>
+          </Card>
+
+          <div className="mx-3 mt-2 flex-1">
+            <Typography style={{ fontSize: '27px', fontWeight: 700, fontFamily: 'Playfair Display' }}>
+              {activity.name}
+            </Typography>
+            <div className="text-sm text-gray-400 flex justify-start ">
+              <LocationOnIcon />
+              <Typography
+                sx={{ color: '#8A8F9E', fontWeight: 300, fontFamily: 'DM Sans', fontStyle: 'normal' }}
+              >
+                {activity.address}
+              </Typography>
+            </div>
+            <div className="mt-2  text-sm flex flex-row flex-wrap  gap-1">
+              {activity.categories?.map((cat) => (
+                <Chip
+                  key={cat.id}
+                  label={cat.name}
+                  sx={{ color: '#FF5C35', fontSize: '11px', fontWeight: 500, background: '##EDEAE4' }}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-      </Box>
+      )}
     </div>
   )
 }
