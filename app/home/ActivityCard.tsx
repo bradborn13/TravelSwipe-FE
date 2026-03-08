@@ -1,7 +1,5 @@
-import Carousel from 'react-bootstrap/Carousel'
 import { Box, Card, Chip, IconButton, Typography } from '@mui/material'
 import { FaHeart, FaShareAlt } from 'react-icons/fa'
-import Image from 'next/image'
 import { useState } from 'react'
 import OpenInFullIcon from '@mui/icons-material/OpenInFull'
 import LocationOnIcon from '@mui/icons-material/LocationOn'

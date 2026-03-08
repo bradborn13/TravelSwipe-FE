@@ -5,7 +5,7 @@ import type { ScheduledActivity } from './calendarTypes'
 
 const STEP = 0.5
 const MIN_DURATION = 0.5
-const MAX_DURATION = 4
+const MAX_DURATION = 8
 
 export function ScheduledEventCard({
   event,
