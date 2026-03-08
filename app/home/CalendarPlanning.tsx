@@ -11,14 +11,16 @@ import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MapRoute } fro
 import { MapPin } from 'lucide-react'
 import { Card } from '@mui/material'
 
-export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }) => {
+export const CalendarPlanning = ({ activityList }: { activityList: Activity[] }) => {
   const [scheduled, setScheduled] = useState<ScheduledActivity[]>([])
-  const inPlanLocationCoordinates = useMemo(() => {
-    return scheduled
-      ?.sort((a, b) => a.startHour - b.startHour)
-      .map((x) => {
-        return [x.activity.longitude, x.activity.latitude]
-      })
+  const inPlanLocationCoordinates: [number, number][] = useMemo(() => {
+    return (
+      scheduled
+        ?.sort((a, b) => a.startHour - b.startHour)
+        .map((x) => {
+          return [x.activity.longitude, x.activity.latitude]
+        }) ?? []
+    )
   }, [scheduled])
   console.log(scheduled, 'scheduled')
   useEffect(() => {

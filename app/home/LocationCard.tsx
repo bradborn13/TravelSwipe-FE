@@ -7,10 +7,14 @@ import { AppMode } from './types/Activity'
 import { ActivityList } from './ActivityList'
 import { Box, Button, Chip, Typography } from '@mui/material'
 import App from 'next/app'
-
+import { socket } from '@/lib/socket'
 export function LocationCard() {
   const query = useAppSelector((state) => state.base.search)
   const [mode, setMode] = useState(AppMode.Listing)
+
+  const sendPing = () => {
+    socket.emit('ping')
+  }
 
   const {
     data: activityList,
@@ -31,6 +35,7 @@ export function LocationCard() {
 
   return (
     <>
+      <Button onClick={() => sendPing()}>PING SOCKETIO</Button>
       <div className="text-gray-400 text-sm mt-5  justify-between flex gap-3">
         {query ? (
           <>

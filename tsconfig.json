@@ -30,7 +30,8 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "app/home/search.ts",
-    "app/home/LocationCard.jsx"
+    "app/home/LocationCard.jsx",
+    "lib/socket.ts"
   ],
   "exclude": ["node_modules"]
 }
