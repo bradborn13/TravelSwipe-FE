@@ -29,8 +29,10 @@ nav {
   background: var(--white);
   border-bottom: 1px solid #e5e0d8;
   position: sticky;
+  border-radius: 25px;
   top: 0;
   z-index: 100;
+  box-shadow: '0 12px 32px rgba(0,0,0,0.09)';
 }
 .logo {
   font-family: 'Playfair Display', serif;

@@ -4,12 +4,14 @@ body {
   color: var(--text);
   padding: 40px;
 }
-.timelineColumn {
-}
 
-.timeGrid {
+.time-grid {
   display: grid;
   grid-template-columns: 52px 1fr;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: none;
 }
 
 .timeLabel {
@@ -128,8 +130,17 @@ body {
   text-align: center;
 }
 
-.activitySidebar {
-  flex: 0 0 40%;
+.activity-sidebar {
+  display: flex;
+  flex: 0 0 20%;
+  height: 600px;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+.map-planning {
+  display: flex;
+  flex: 0 0 60%;
+  border-radius: 26px !important;
 }
 
 .activityItem {
@@ -174,6 +185,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: none;
 }
 
 /* Each row */
@@ -291,14 +306,16 @@ body {
   padding: 4px 10px;
   font-size: 11px;
 }
-.grid-panel-0 {
+.grid-calendar {
   background: var(--white);
   border-radius: 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
-  flex: 0 0 50%;
+  height: 600px;
+  flex: 0 0 20%;
+  background-color: goldenrod;
 }
 .grid-header {
   background: var(--card-dark);

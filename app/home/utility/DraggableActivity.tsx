@@ -3,7 +3,7 @@ import styles from './CalendarPlanning.module.css'
 import { Activity } from '../types/Activity'
 
 export function DraggableActivity({ activity }: { activity: Activity }) {
-  const { ref, isDragging } = useDraggable({ id: activity.fsq_id })
+  const { ref, isDragging } = useDraggable({ id: activity.fsq_id ?? activity.fsqId })
   return (
     <li ref={ref} className={`item ${styles.activityItem} ${isDragging ? styles.activityItemDragging : ''}`}>
       <div className={styles['pool-item']}>

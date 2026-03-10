@@ -2,6 +2,7 @@ export interface Activity {
   name: string
   suburb: string
   fsq_id: string
+  fsqId: string
   city: string
   imagesURL: ImageURL[]
   latitude: number

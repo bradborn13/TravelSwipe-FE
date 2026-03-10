@@ -1,5 +1,5 @@
 'use client'
-import './globals.css'
+import './globals/globals.css'
 import Navbar from './navigation/Navbar'
 import StoreProvider from './store/StoreProvider'
 import 'bootstrap/dist/css/bootstrap.min.css'

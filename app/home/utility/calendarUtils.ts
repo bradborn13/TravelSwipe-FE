@@ -1,7 +1,7 @@
 import type { ScheduledActivity } from './calendarTypes'
 
-// 26 half-hour sub-slots: 8, 8.5, 9, 9.5 … 20
-export const HOURS = Array.from({ length: 26 }, (_, i) => i * 0.5 + 8)
+// 48 half-hour sub-slots: 0, 0.5, 1, 1.5 … 23.5
+export const HOURS = Array.from({ length: 48 }, (_, i) => i * 0.5)
 // Reference height for 1 full hour — event card heights are calculated against this
 export const SLOT_HEIGHT = 64
 
@@ -17,11 +17,7 @@ export const formatHour = (h: number): string => {
  * excluding the event with `excludeId` (used when rescheduling so the
  * event's own old span doesn't block its new position).
  */
-export function isSlotCovered(
-  scheduled: ScheduledActivity[],
-  hour: number,
-  excludeId?: string,
-): boolean {
+export function isSlotCovered(scheduled: ScheduledActivity[], hour: number, excludeId?: string): boolean {
   return scheduled.some((e) => {
     if (e.id === excludeId) return false
     // Always block the start slot (event card lives here)

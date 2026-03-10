@@ -10,7 +10,6 @@ import { ImageCarousel } from './components/ImageCarousel'
 
 export const ActivityCard = ({ activity }: { activity: Activity }) => {
   const [flipped, setFlipped] = useState(false)
-  console.log(activity, '0')
   const [hover, setHover] = useState(false)
   console.log(activity.imagesURL, '1')
   console.log(Array.isArray(activity.imagesURL), '2')

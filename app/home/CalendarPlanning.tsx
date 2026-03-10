@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Fragment } from 'react'
+import { useState, useEffect, useMemo, Fragment, act } from 'react'
 import { DragDropProvider } from '@dnd-kit/react'
 import type { DragEndEvent } from '@dnd-kit/react'
 import styles from './utility/CalendarPlanning.module.css'
@@ -20,18 +20,9 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
         return [x.activity.longitude, x.activity.latitude]
       })
   }, [scheduled])
-  console.log(scheduled, 'scheduled')
   useEffect(() => {
     setScheduled([])
   }, [activityList])
-  console.log(
-    scheduled
-      ?.sort((x) => x.startHour)
-      .map((x) => {
-        return [x.activity.longitude, x.activity.longitude]
-      }),
-    'coor',
-  )
   const handleRemove = (id: string) => {
     setScheduled((prev) => prev.filter((s) => s.id !== id))
   }
@@ -41,7 +32,20 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
       prev.map((s) => (s.id === id ? { ...s, durationHours: s.durationHours + delta } : s)),
     )
   }
-
+  const CurrentDate = () => {
+    const today = new Date()
+    const options: { weekday: string; month: string; day: string } = {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    }
+    const formattedDate = new Intl.DateTimeFormat('en-US', options).format(today)
+    return formattedDate
+  }
+  const plannedEventsTime = useMemo(
+    () => scheduled.reduce((sum, item) => sum + item.durationHours, 0),
+    [scheduled],
+  )
   const handleDragEnd: DragEndEvent = (event) => {
     const { operation } = event
     if (!operation.source || !operation.target) return
@@ -85,83 +89,86 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
       })
     }
   }
-
   return (
     <div>
       <DragDropProvider onDragEnd={handleDragEnd}>
-        <div className="flex flex-row justify-between ">
-          <div className={styles['grid-panel-0']}>
+        <div className="flex flex-row justify-between gap-2">
+          <div className={styles['grid-calendar']}>
             <div className={styles['grid-header']}>
               <div>
-                <h3>Saturday, June 14</h3>
-                <p>3 activities · ~6.5h planned</p>
+                <h3>{CurrentDate()}</h3>
+                <p>
+                  {scheduled.length} activities · ~ {plannedEventsTime}h planned
+                </p>
               </div>
               <div className={styles['grid-panel-a']}>
                 <span className={styles['grid-panel-b']}>Clear day</span>
               </div>
-              <div className={styles['day-tabs']}></div>
             </div>
-            <div>
-              <div className={styles.timelineColumn}>
-                <div className={styles.timeGrid}>
-                  {HOURS.map((hour) => {
-                    const event = scheduled.find((a) => a.startHour === hour)
-                    const covered = isSlotCovered(scheduled, hour)
-                    return (
-                      <Fragment key={hour}>
-                        <div className={styles.timeLabel}>
-                          {Number.isInteger(hour) ? formatHour(hour) : ''}
-                        </div>
-                        <HourSlot
-                          hour={hour}
-                          event={event}
-                          isCovered={covered}
-                          onRemove={handleRemove}
-                          onChangeDuration={handleChangeDuration}
-                        />
-                      </Fragment>
-                    )
-                  })}
-                </div>
-              </div>
+            <div className={styles['time-grid']}>
+              {HOURS.map((hour) => {
+                const event = scheduled.find((a) => a.startHour === hour)
+                const covered = isSlotCovered(scheduled, hour)
+                return (
+                  <Fragment key={hour}>
+                    <div className={styles['timeLabel']}>
+                      {Number.isInteger(hour) ? formatHour(hour) : ''}
+                    </div>
+                    <HourSlot
+                      hour={hour}
+                      event={event}
+                      isCovered={covered}
+                      onRemove={handleRemove}
+                      onChangeDuration={handleChangeDuration}
+                    />
+                  </Fragment>
+                )
+              })}
             </div>
           </div>
-          <div className={styles.activitySidebar}>
+          <Card className={styles['map-planning']}>
+            {activityList && activityList.length > 0 && (
+              <Map
+                center={[activityList[0].longitude, activityList[0].latitude]}
+                zoom={15}
+                theme={'light'}
+                className={styles['map-planning-01']}
+              >
+                {activityList && inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
+                  <MapRoute coordinates={inPlanLocationCoordinates} color="#3b82f6" width={4} opacity={0.8} />
+                )}
+
+                {scheduled &&
+                  scheduled.length > 0 &&
+                  scheduled.map((x) => {
+                    return (
+                      <MapMarker key={x.id} longitude={x.activity.longitude} latitude={x.activity.latitude}>
+                        <MarkerContent>
+                          <div className="cursor-move">
+                            <MapPin className="fill-black stroke-white dark:fill-white" size={28} />
+                          </div>
+                        </MarkerContent>
+                        <MarkerPopup>{x.activity.name}</MarkerPopup>
+                      </MapMarker>
+                    )
+                  })}
+                <MapControls />
+              </Map>
+            )}
+          </Card>
+          <div className={styles['activity-sidebar']}>
             <div className={styles['pool-panel']}>
               <div className={styles['pool-title']}>All Activities</div>
               <div className={styles['pool-sub']}>Drag any card onto the time grid →</div>
               <div className={styles['pool-list']}>
                 {activityList?.map((activity: Activity) => (
-                  <DraggableActivity key={activity.fsq_id} activity={activity} />
+                  <DraggableActivity key={activity.fsq_id || activity.fsqId} activity={activity} />
                 ))}
               </div>
             </div>
           </div>
         </div>
       </DragDropProvider>
-      <Card style={{ height: '600px' }}>
-        <Map center={[activityList[0].longitude, activityList[0].latitude]} zoom={15} theme={'light'}>
-          {inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
-            <MapRoute coordinates={inPlanLocationCoordinates} color="#3b82f6" width={4} opacity={0.8} />
-          )}
-
-          {scheduled &&
-            scheduled.length > 0 &&
-            scheduled.map((x) => {
-              return (
-                <MapMarker key={x.id} longitude={x.activity.longitude} latitude={x.activity.latitude}>
-                  <MarkerContent>
-                    <div className="cursor-move">
-                      <MapPin className="fill-black stroke-white dark:fill-white" size={28} />
-                    </div>
-                  </MarkerContent>
-                  <MarkerPopup>{x.activity.name}</MarkerPopup>
-                </MapMarker>
-              )
-            })}
-          <MapControls />
-        </Map>
-      </Card>
     </div>
   )
 }

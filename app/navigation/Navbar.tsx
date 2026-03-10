@@ -1,5 +1,5 @@
 import Login from './Login'
-import './Navbar.css'
+import '../globals/navbar.css'
 import Search from './Search'
 export default function Navbar() {
   return (
