@@ -32,16 +32,16 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
       prev.map((s) => (s.id === id ? { ...s, durationHours: s.durationHours + delta } : s)),
     )
   }
-  const CurrentDate = () => {
-    const today = new Date()
-    const options: { weekday: string; month: string; day: string } = {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    }
-    const formattedDate = new Intl.DateTimeFormat('en-US', options).format(today)
-    return formattedDate
-  }
+  // const CurrentDate = () => {
+  //   const today = new Date()
+  //   const options: { weekday: string; month: string; day: string } = {
+  //     weekday: 'long',
+  //     month: 'long',
+  //     day: 'numeric',
+  //   }
+  //   const formattedDate = new Intl.DateTimeFormat('en-US', options).format(today)
+  //   return formattedDate
+  // }
   const plannedEventsTime = useMemo(
     () => scheduled.reduce((sum, item) => sum + item.durationHours, 0),
     [scheduled],
@@ -96,7 +96,7 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
           <div className={styles['grid-calendar']}>
             <div className={styles['grid-header']}>
               <div>
-                <h3>{CurrentDate()}</h3>
+                {/* <h3>{CurrentDate()}</h3> */}
                 <p>
                   {scheduled.length} activities · ~ {plannedEventsTime}h planned
                 </p>
@@ -134,9 +134,9 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
                 theme={'light'}
                 className={styles['map-planning-01']}
               >
-                {activityList && inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
+                {/* {activityList && inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
                   <MapRoute coordinates={inPlanLocationCoordinates} color="#3b82f6" width={4} opacity={0.8} />
-                )}
+                )} */}
 
                 {scheduled &&
                   scheduled.length > 0 &&
