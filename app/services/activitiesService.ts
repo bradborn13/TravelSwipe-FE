@@ -22,7 +22,7 @@ export function updateImagesForCityActivities(params: { city: string }) {
   return api.post('/activities/update/images', null, { params })
 }
 export function getAllCityLocations() {
-  return useSWR(['/city/getAll'], ([url]) => api.get(url).then((res) => res.data), {
+  return useSWR(['/cities/getAll'], ([url]) => api.get(url).then((res) => res.data), {
     revalidateOnFocus: false, // don’t fetch on window focus
     revalidateOnReconnect: false, // don’t fetch on network reconnect
     refreshInterval: 0, // don’t auto-refresh
