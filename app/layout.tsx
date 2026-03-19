@@ -1,6 +1,6 @@
 'use client'
 import './globals/globals.css'
-import Navbar from './navigation/Navbar'
+import Navbar from './navigation/Navigation'
 import StoreProvider from './store/StoreProvider'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'

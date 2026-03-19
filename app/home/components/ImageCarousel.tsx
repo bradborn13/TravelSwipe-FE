@@ -12,8 +12,8 @@ export const ImageCarousel = ({ images }: { images: ImageURL[] }) => {
             <Carousel.Item key={index}>
               <Box sx={{ width: '100%', height: 290, overflow: 'hidden' }}>
                 <Image
-                  width={0}
-                  height={0}
+                  width={400}
+                  height={290}
                   loading={index === 0 ? 'eager' : 'lazy'}
                   src={
                     img.thumbnail ??

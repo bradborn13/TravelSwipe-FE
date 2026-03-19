@@ -16,7 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import GoogleIcon from '@mui/icons-material/Google'
 import FacebookIcon from '@mui/icons-material/Facebook'
-import { login, register } from '../services/authService'
+import { login, register } from '../../services/authService'
 enum AuthOption {
   Login = 1,
   Register = 2,
@@ -123,9 +123,9 @@ export default function Login() {
   }, [])
   return (
     <div>
-      <Button onClick={handleAuth} color="inherit">
+      <button onClick={handleAuth} className="btn-planner">
         <Typography textTransform={'capitalize'}> {userIsLogged ? 'Log Out' : 'Sign Up '}</Typography>
-      </Button>
+      </button>
 
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} fullWidth maxWidth="xs">
         {/* Close Button */}

@@ -1,44 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '../store/hooks'
-import { Typography, Chip, Box } from '@mui/material'
+import { Chip, Skeleton } from '@mui/material'
 import { ActivityCard } from './ActivityCard'
-import { Activity } from './types/Activity'
+import { Activity, Category } from './types/Activity'
 
 export function ActivityList({ activityList }: { activityList?: Activity[] }) {
-  const query = useAppSelector((state) => state.base.search)
+  const SearchValue = useAppSelector((state) => state.base.search)
   const [filterByTag, setTag] = useState('')
   useEffect(() => {
     setTag('')
-  }, [query])
+  }, [SearchValue])
   return (
     <>
-      {/* <Box style={{ display: 'flex', alignItems: 'center' }}>
-        {activityList?.length > 0 && (
-        //   <Box sx={{ m: 1, position: 'relative' }}>
-        //     <Button
-        //       variant="contained"
-        //       disabled={loadingActivities}
-        //       onClick={async () => await handleUpdateActivityImages()}
-        //     >
-        //       Update Images
-        //     </Button>
-
-        //     {loadingActivities && (
-        //       <CircularProgress
-        //         size={24}
-        //         sx={{
-        //           color: green[500],
-        //           position: 'absolute',
-        //           top: '50%',
-        //           left: '50%',
-        //           marginTop: '-12px',
-        //           marginLeft: '-12px',
-        //         }}
-        //       />
-        //     )}
-        //   </Box>
-        )}
-      </Box> */}
       <div className="flex flex-row gap-2 flex-wrap mx-3">
         <Chip
           label={'All'}
@@ -58,9 +31,9 @@ export function ActivityList({ activityList }: { activityList?: Activity[] }) {
             new Map(
               activityList.flatMap((x) => x.categories).map((item) => [item.id, item]), // Map uses ID as key to overwrite duplicates
             ).values(),
-          ).map((z: any) => (
+          ).map((z: Category, index) => (
             <Chip
-              key={z.id}
+              key={index}
               label={z.name}
               sx={{ color: '#FF5C35', fontSize: '11px', fontWeight: 500, background: '##EDEAE4' }}
               onClick={() => setTag(z.name)}
@@ -68,6 +41,14 @@ export function ActivityList({ activityList }: { activityList?: Activity[] }) {
           ))}
       </div>
       <div className="flex flex-row justify-center flex-wrap gap-10  mb-5">
+        {!activityList ? (
+          <div className="flex flex-row justify-center flex-wrap gap-10 mb-5">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Skeleton key={index} variant="rounded" width={400} height={500} animation="wave" />
+            ))}
+          </div>
+        ) : null}
+
         {activityList && activityList?.length > 0 ? (
           activityList.map((activity, index) =>
             filterByTag ? (

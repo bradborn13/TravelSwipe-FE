@@ -1,22 +1,22 @@
 import { useState, useEffect, useMemo, Fragment, act } from 'react'
 import { DragDropProvider } from '@dnd-kit/react'
 import type { DragEndEvent } from '@dnd-kit/react'
-import styles from './utility/CalendarPlanning.module.css'
+import styles from './styles/CalendarPlanning.module.css'
 import { HOURS, formatHour, isSlotCovered } from './utility/calendarUtils'
-import { HourSlot } from './utility/HourSlot'
-import type { ScheduledActivity } from './utility/calendarTypes'
-import { DraggableActivity } from './utility/DraggableActivity'
-import { Activity } from './types/Activity'
+import { HourSlot } from './HourSlot'
+import { DraggableActivity } from './DraggableActivity'
+import { Activity } from '../../types/Activity'
 import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MapRoute } from '@/components/ui/map'
 import { MapPin } from 'lucide-react'
 import { Card } from '@mui/material'
+import { ScheduledActivity } from './utility/calendarTypes'
 
 export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }) => {
   const [scheduled, setScheduled] = useState<ScheduledActivity[]>([])
   const inPlanLocationCoordinates = useMemo(() => {
     return scheduled
       ?.sort((a, b) => a.startHour - b.startHour)
-      .map((x) => {
+      .map((x): [number, number] => {
         return [x.activity.longitude, x.activity.latitude]
       })
   }, [scheduled])
@@ -69,7 +69,7 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
       })
     } else {
       if (isSlotCovered(scheduled, hour)) return
-      const activity = activityList?.find((a: Activity) => a.fsq_id === sourceId)
+      const activity = activityList?.find((a: Activity) => a.id === sourceId)
       if (!activity) return
 
       setScheduled((prev) => {
@@ -89,6 +89,7 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
       })
     }
   }
+  console.log(activityList)
   return (
     <div>
       <DragDropProvider onDragEnd={handleDragEnd}>
@@ -134,9 +135,9 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
                 theme={'light'}
                 className={styles['map-planning-01']}
               >
-                {/* {activityList && inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
+                {activityList && inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
                   <MapRoute coordinates={inPlanLocationCoordinates} color="#3b82f6" width={4} opacity={0.8} />
-                )} */}
+                )}
 
                 {scheduled &&
                   scheduled.length > 0 &&
@@ -162,7 +163,7 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
               <div className={styles['pool-sub']}>Drag any card onto the time grid →</div>
               <div className={styles['pool-list']}>
                 {activityList?.map((activity: Activity) => (
-                  <DraggableActivity key={activity.fsq_id || activity.fsqId} activity={activity} />
+                  <DraggableActivity key={activity.id} activity={activity} />
                 ))}
               </div>
             </div>

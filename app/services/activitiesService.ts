@@ -1,5 +1,7 @@
-// lib/api.ts
-import useSWR, { SWRResponse } from 'swr'
+'use client'
+
+import useSWR from 'swr'
+import type { SWRResponse } from 'swr'
 import api from './api'
 import { Activity } from '../home/types/Activity'
 

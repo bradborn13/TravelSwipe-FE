@@ -1,4 +1,5 @@
 export interface Activity {
+  id: string
   name: string
   suburb: string
   fsq_id: string

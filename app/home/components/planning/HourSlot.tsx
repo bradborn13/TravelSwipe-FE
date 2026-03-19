@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/react'
-import styles from './CalendarPlanning.module.css'
+import styles from './styles/CalendarPlanning.module.css'
+import { ScheduledActivity } from './utility/calendarTypes'
 import { ScheduledEventCard } from './ScheduledEventCard'
-import type { ScheduledActivity } from './calendarTypes'
 
 export function HourSlot({
   hour,

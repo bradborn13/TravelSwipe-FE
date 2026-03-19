@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/react'
-import styles from './CalendarPlanning.module.css'
-import { SLOT_HEIGHT, formatHour } from './calendarUtils'
-import type { ScheduledActivity } from './calendarTypes'
+import styles from './styles/CalendarPlanning.module.css'
+import { formatHour, SLOT_HEIGHT } from './utility/calendarUtils'
+import { ScheduledActivity } from './utility/calendarTypes'
 
 const STEP = 0.5
 const MIN_DURATION = 0.5

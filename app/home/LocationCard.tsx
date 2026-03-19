@@ -1,15 +1,17 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
-import { useAppSelector } from '../store/hooks'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { getActivitiesByCity, updateImagesForCityActivities } from '../services/activitiesService'
-import { CalendarPlanning } from './CalendarPlanning'
+import { CalendarPlanning } from './components/planning/CalendarPlanning'
 import { AppMode } from './types/Activity'
 import { ActivityList } from './ActivityList'
 import { Box, Button, Chip, Typography } from '@mui/material'
-import App from 'next/app'
+import { clearRehydrate } from '../store/slices/searchSlice'
 
 export function LocationCard() {
   const query = useAppSelector((state) => state.base.search)
+  const dispatch = useAppDispatch()
+  const shouldRehydrateSearch = useAppSelector((state) => state.base.rehydrateSearch)
   const [mode, setMode] = useState(AppMode.Listing)
 
   const {
@@ -18,16 +20,11 @@ export function LocationCard() {
     mutate: mutateActivityList,
   } = getActivitiesByCity({ city: query ?? 'aarhus' })
 
-  const handleUpdateActivityImages = useCallback(async () => {
-    try {
-      if (!query) return
-      await updateImagesForCityActivities({ city: query }).then(async () => {
-        mutateActivityList()
-      })
-    } catch (err) {
-      console.error('Error updating activity images:', err)
+  useEffect(() => {
+    if (shouldRehydrateSearch) {
+      mutateActivityList().finally(() => dispatch(clearRehydrate()))
     }
-  }, [query])
+  }, [shouldRehydrateSearch])
 
   return (
     <>

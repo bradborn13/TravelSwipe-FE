@@ -1,4 +1,4 @@
-import { Activity } from '../types/Activity'
+import { Activity } from '../../../types/Activity'
 export interface ScheduledActivity {
   id: string
   name: string

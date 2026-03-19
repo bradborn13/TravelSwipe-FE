@@ -1,9 +1,9 @@
 import { useDraggable } from '@dnd-kit/react'
-import styles from './CalendarPlanning.module.css'
-import { Activity } from '../types/Activity'
+import styles from './styles/CalendarPlanning.module.css'
+import { Activity } from '../../types/Activity'
 
 export function DraggableActivity({ activity }: { activity: Activity }) {
-  const { ref, isDragging } = useDraggable({ id: activity.fsq_id ?? activity.fsqId })
+  const { ref, isDragging } = useDraggable({ id: activity.id })
   return (
     <li ref={ref} className={`item ${styles.activityItem} ${isDragging ? styles.activityItemDragging : ''}`}>
       <div className={styles['pool-item']}>
