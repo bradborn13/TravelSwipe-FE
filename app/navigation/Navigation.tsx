@@ -20,6 +20,9 @@ function Navigation() {
   }, [searchValue])
   return (
     <nav>
+      <div className="logo">
+        travel<span>Swipe</span>
+      </div>
       <Search />
 
       <div className="nav-right">

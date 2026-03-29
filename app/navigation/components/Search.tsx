@@ -15,16 +15,6 @@ export default function Search() {
   const [location, setLocation] = useState('')
   const [locationSuggestions, setLocationSuggestions] = useState([])
   const { data, error, isLoading } = getAllCityLocations()
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setLocation(inputValue)
-
-      dispatch(setSearch(inputValue))
-    }, 400)
-    if (inputValue !== '') {
-      return () => clearTimeout(timeout)
-    }
-  }, [dispatch, inputValue, location])
 
   useEffect(() => {
     setLocationSuggestions(data ?? [])
@@ -37,6 +27,12 @@ export default function Search() {
         id="Autocomplete-locations"
         options={locationSuggestions}
         value={location}
+        onKeyDown={(e) => {
+          if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+            setLocation(inputValue)
+            dispatch(setSearch(inputValue))
+          }
+        }}
         onChange={(event, newValue) => {
           setLocation(newValue ?? '')
           setInputValue(newValue ?? '')

@@ -41,13 +41,13 @@ export function ActivityList({ activityList }: { activityList?: Activity[] }) {
           ))}
       </div>
       <div className="flex flex-row justify-center flex-wrap gap-10  mb-5">
-        {!activityList ? (
+        {/* {!activityList ? (
           <div className="flex flex-row justify-center flex-wrap gap-10 mb-5">
             {Array.from({ length: 6 }).map((_, index) => (
               <Skeleton key={index} variant="rounded" width={400} height={500} animation="wave" />
             ))}
           </div>
-        ) : null}
+        ) : null} */}
 
         {activityList && activityList?.length > 0 ? (
           activityList.map((activity, index) =>
