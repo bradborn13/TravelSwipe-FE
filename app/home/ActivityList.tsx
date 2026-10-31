@@ -1,8 +1,24 @@
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '../store/hooks'
-import { Chip, Skeleton } from '@mui/material'
+import { Chip } from '@mui/material'
 import { ActivityCard } from './ActivityCard'
-import { Activity, Category } from './types/Activity'
+import { Activity } from './types/Activity'
+
+const filterChipSx = (active: boolean) => ({
+  height: 32,
+  color: active ? 'var(--white)' : 'var(--text)',
+  background: active ? 'var(--primary)' : 'var(--surface)',
+  border: '1px solid',
+  borderColor: active ? 'var(--primary)' : 'var(--border)',
+  fontSize: '14px',
+  fontWeight: 500,
+  fontFamily: 'inherit',
+  flexShrink: 0,
+  '&:hover': {
+    background: active ? 'var(--primary)' : 'var(--active)',
+    borderColor: active ? 'var(--primary)' : 'var(--control)',
+  },
+})
 
 export function ActivityList({ activityList }: { activityList?: Activity[] }) {
   const SearchValue = useAppSelector((state) => state.base.search)
@@ -10,59 +26,50 @@ export function ActivityList({ activityList }: { activityList?: Activity[] }) {
   useEffect(() => {
     setTag('')
   }, [SearchValue])
-  return (
-    <>
-      <div className="flex flex-row gap-2 flex-wrap mx-3">
-        <Chip
-          label={'All'}
-          sx={{
-            color: '#FF5C35',
-            fontSize: '11px',
-            fontWeight: 500,
-            background: '##EDEAE4',
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-          }}
-          onClick={() => setTag('')}
-        />
-        {activityList &&
-          activityList &&
-          activityList?.length > 0 &&
-          Array.from(
-            new Map(
-              activityList.flatMap((x) => x.categories).map((item) => [item.id, item]), // Map uses ID as key to overwrite duplicates
-            ).values(),
-          ).map((z: Category, index) => (
-            <Chip
-              key={index}
-              label={z.name}
-              sx={{ color: '#FF5C35', fontSize: '11px', fontWeight: 500, background: '##EDEAE4' }}
-              onClick={() => setTag(z.name)}
-            />
-          ))}
-      </div>
-      <div className="flex flex-row justify-center flex-wrap gap-10  mb-5">
-        {/* {!activityList ? (
-          <div className="flex flex-row justify-center flex-wrap gap-10 mb-5">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} variant="rounded" width={400} height={500} animation="wave" />
-            ))}
-          </div>
-        ) : null} */}
 
-        {activityList && activityList?.length > 0 ? (
-          activityList.map((activity, index) =>
-            filterByTag ? (
-              activity.categories.find((x) => x.name === filterByTag) ? (
-                <ActivityCard activity={activity} key={index}></ActivityCard>
-              ) : null
-            ) : (
-              <ActivityCard activity={activity} key={index}></ActivityCard>
-            ),
-          )
-        ) : (
-          <p className="text-gray-400 mt-5">No events found for this location.</p>
-        )}
+  const categoryNames = Array.from(
+    new Set(activityList?.flatMap((x) => x.categories.map((c) => c.name)) ?? []),
+  )
+  const visibleActivities =
+    activityList?.filter(
+      (activity) => !filterByTag || activity.categories.some((x) => x.name === filterByTag),
+    ) ?? []
+
+  return (
+    <div style={{ padding: '0 var(--gutter)' }}>
+      <div className="filter-chips">
+        <Chip label="All" sx={filterChipSx(filterByTag === '')} onClick={() => setTag('')} />
+        {categoryNames.map((name) => (
+          <Chip
+            key={name}
+            label={name}
+            sx={filterChipSx(filterByTag === name)}
+            onClick={() => setTag((prev) => (prev === name ? '' : name))}
+          />
+        ))}
       </div>
-    </>
+      {visibleActivities.length > 0 ? (
+        <div
+          className="grid gap-8 grid-cols-[repeat(auto-fill,minmax(min(100%,420px),1fr))]"
+          style={{ marginBottom: 40 }}
+        >
+          {visibleActivities.map((activity) => (
+            <ActivityCard activity={activity} key={activity.name}></ActivityCard>
+          ))}
+        </div>
+      ) : (
+        <p
+          className="mt-2"
+          style={{
+            color: 'var(--muted-text)',
+            border: '1px dashed var(--control)',
+            borderRadius: 'var(--radius-control)',
+            padding: '12px 16px',
+          }}
+        >
+          Nothing to do found here yet. Try another city.
+        </p>
+      )}
+    </div>
   )
 }

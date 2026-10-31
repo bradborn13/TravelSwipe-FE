@@ -27,3 +27,7 @@ yarn-error.log*
 # OS metadata
 .DS_Store
 Thumbs.db
+# Claude Code skills (local only)
+.claude/skills/
+skills-lock.json
+.taste-skill/

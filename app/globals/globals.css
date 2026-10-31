@@ -2,17 +2,55 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@custom-variant dark (&:is(.dark *));
 :root {
-  --bg: #fdecec;
-  --card-dark: #1c2536;
-  --accent: #ff5c35;
-  --accent2: #ffb800;
-  --teal: #00c9a7;
-  --text: #1c2536;
-  --muted: #8a8f9e;
+  /* ground and surfaces: white cards on a neutral off-white, separated by one 1px line */
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --raised: #f7f8fa;
+  --active: #eceef1;
+  --border: #e6e6e6;
+  --rule: #f0f1f3;
+  --control: #d6d9dd;
+
+  /* ink */
+  --text: #1b1d1f;
+  --muted-text: #5c6064;
+  --muted: #6b6f74;
+  --primary: #1b1d1f;
   --white: #ffffff;
-  --border: #e5e0d8;
+
+  /* the brand orange: the wordmark, the selected filter, a like. Never on chrome. */
+  --accent: #ff5c35;
+  --accent-soft: #ffe9e2;
+  --accent-ink: #9a3412;
+
+  /* category tints: pale fill with the dark of its own hue as ink */
+  --cat-blue-bg: #dcf1ff;
+  --cat-blue-ink: #0a3a80;
+  --cat-green-bg: #dcfae5;
+  --cat-green-ink: #14532d;
+  --cat-teal-bg: #d9f3f1;
+  --cat-teal-ink: #0b4f4a;
+  --cat-rose-bg: #ffe4ec;
+  --cat-rose-ink: #8a1c3d;
+  --cat-neutral-bg: #eef1f4;
+  --cat-neutral-ink: #3a3d40;
+
+  /* legacy names still read by components */
+  --card-dark: var(--primary);
+  --tag-bg: var(--cat-neutral-bg);
+  --accent2: #b45309;
+  --teal: #2a8798;
+
+  /* shadcn / tailwind roles */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --ring: #9ca3af;
+
+  --radius-card: 20px;
+  --radius-control: 10px;
+  --control-height: 40px;
+  --gutter: clamp(16px, 4vw, 40px);
   --slot-h: 64px;
 }
 * {
@@ -109,5 +147,98 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.card-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.card-action:hover {
+  background: var(--active);
+  color: var(--text);
+}
+.card-action:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* Activities / Planning switch: the white pill slides to the chosen option */
+.mode-tabs {
+  position: relative;
+  display: inline-flex;
+  background: var(--active);
+  border-radius: 50px;
+  padding: 4px;
+  gap: 2px;
+}
+.mode-pill {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* the incoming view slides in from the side the pill moved toward. Fill "backwards", not "both": a
+   transform left on the view after the animation would become the containing block for the planner's
+   fixed-position drag preview */
+.view-from-right {
+  animation: view-from-right 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.view-from-left {
+  animation: view-from-left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+@keyframes view-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes view-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+@keyframes view-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-pill {
+    transition: none;
+  }
+  .view-from-right,
+  .view-from-left {
+    animation: view-fade 0.15s ease-out backwards;
+  }
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+@media (max-width: 720px) {
+  .filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-right: -16px;
+    padding-right: 16px;
   }
 }

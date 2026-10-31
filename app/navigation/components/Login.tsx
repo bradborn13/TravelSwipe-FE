@@ -17,6 +17,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import GoogleIcon from '@mui/icons-material/Google'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import { login, register } from '../../services/authService'
+import PersonPinIcon from '@mui/icons-material/PersonPin'
+
 enum AuthOption {
   Login = 1,
   Register = 2,
@@ -123,8 +125,14 @@ export default function Login() {
   }, [])
   return (
     <div>
-      <button onClick={handleAuth} className="btn-planner">
-        <Typography textTransform={'capitalize'}> {userIsLogged ? 'Log Out' : 'Sign Up '}</Typography>
+      <button
+        onClick={handleAuth}
+        className="btn-icon"
+        aria-label={userIsLogged ? 'Sign out' : 'Sign in'}
+        aria-pressed={userIsLogged}
+        title={userIsLogged ? 'Sign out' : 'Sign in'}
+      >
+        <PersonPinIcon sx={{ fontSize: 20 }} />
       </button>
 
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} fullWidth maxWidth="xs">
@@ -190,7 +198,7 @@ export default function Login() {
                 size="large"
                 type="submit"
                 className="mt-4 py-3 normal-case text-lg font-bold"
-                style={{ backgroundColor: '#818cf8', borderRadius: 16 }}
+                style={{ backgroundColor: 'var(--primary)', borderRadius: 100, boxShadow: 'none' }}
               >
                 {authOption === AuthOption.Register ? 'Create Account' : 'Login'}
               </Button>
@@ -229,7 +237,8 @@ export default function Login() {
           <Typography variant="body2" className="pt-3 text-gray-500">
             {authOption === AuthOption.Register ? 'Already have an account?' : 'Dont have an account?'}
             <span
-              className="text-indigo-500 cursor-pointer font-bold mx-2"
+              className="cursor-pointer font-bold mx-2 underline"
+              style={{ color: 'var(--text)' }}
               onClick={() =>
                 setAuthOption(authOption === AuthOption.Login ? AuthOption.Register : AuthOption.Login)
               }

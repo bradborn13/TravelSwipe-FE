@@ -6,12 +6,14 @@ import { ScheduledEventCard } from './ScheduledEventCard'
 export function HourSlot({
   hour,
   event,
+  stop,
   isCovered,
   onRemove,
   onChangeDuration,
 }: {
   hour: number
   event?: ScheduledActivity
+  stop?: number
   isCovered: boolean
   onRemove: (id: string) => void
   onChangeDuration: (_: string, __: number) => void
@@ -20,6 +22,7 @@ export function HourSlot({
 
   const slotClass = [
     styles.timeSlot,
+    Number.isInteger(hour) ? '' : styles.timeSlotHalf,
     isCovered && !event ? styles.timeSlotCovered : '',
     !isCovered && isDropTarget ? styles.timeSlotHighlighted : '',
   ]
@@ -31,6 +34,7 @@ export function HourSlot({
       {event && (
         <ScheduledEventCard
           event={event}
+          stop={stop}
           hour={hour}
           onRemove={onRemove}
           onChangeDuration={onChangeDuration}

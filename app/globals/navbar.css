@@ -1,76 +1,132 @@
-:root {
-  --card-dark: #1c2536;
-  --accent: #ff5c35;
-  --accent2: #ffb800;
-  --text: #1c2536;
-  --muted: #8a8f9e;
-  --white: #ffffff;
-  --tag-bg: #edeae4;
-}
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
+html body {
   font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  padding: 0 0 40px;
 }
+
+/* a flat bar on the page's own gutter: logo | search (centred on the window) | actions */
 nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 360px) 1fr;
   align-items: center;
-  justify-content: space-between;
-  padding: 18px 40px;
-  background: var(--white);
-  border-bottom: 1px solid #e5e0d8;
+  gap: 24px;
+  height: 64px;
+  padding: 0 var(--gutter);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   position: sticky;
-  border-radius: 25px;
   top: 0;
   z-index: 100;
-  box-shadow: '0 12px 32px rgba(0,0,0,0.09)';
 }
 .logo {
   font-family: 'Playfair Display', serif;
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.5px;
+  color: var(--text);
+  white-space: nowrap;
 }
 .logo span {
   color: var(--accent);
 }
 
+.nav-search {
+  width: 100%;
+}
+
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: flex-end;
+  gap: 8px;
 }
-.btn-planner {
-  background: var(--card-dark);
-  color: var(--white);
-  border: none;
+
+.btn-secondary,
+.btn-icon {
+  height: var(--control-height);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--control);
   border-radius: 100px;
-  padding: 9px;
-  width: 140px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
-.btn-signup {
-  background: var(--accent);
-  color: var(--white) !important;
-  border: none;
-  width: 120px;
-  border-radius: 100px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
+.btn-secondary {
+  padding: 0 16px;
+  white-space: nowrap;
+}
+.btn-icon {
+  width: var(--control-height);
+  padding: 0;
+}
+.btn-secondary:hover,
+.btn-icon:hover {
+  background: var(--active);
+  border-color: #b9bdc3;
+}
+.btn-secondary:active,
+.btn-icon:active {
+  background: var(--control);
+}
+.btn-secondary:focus-visible,
+.btn-icon:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.btn-secondary:disabled {
+  color: var(--muted-text);
+  cursor: default;
+}
+
+/* signed in: the account button fills in ink */
+.btn-icon[aria-pressed='true'] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--white);
+}
+
+@media (max-width: 720px) {
+  nav {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'logo actions'
+      'search search';
+    height: auto;
+    row-gap: 10px;
+    padding: 12px 16px;
+  }
+  .logo {
+    grid-area: logo;
+  }
+  .nav-right {
+    grid-area: actions;
+  }
+  .nav-search {
+    grid-area: search;
+  }
+  /* phone: Update images folds to its icon so the wordmark keeps its room */
+  .btn-secondary {
+    width: var(--control-height);
+    padding: 0;
+  }
+  .btn-secondary .btn-label {
+    display: none;
+  }
 }

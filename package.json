@@ -12,6 +12,7 @@
     "@dnd-kit/react": "^0.3.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@microsoft/signalr": "^10.0.0",
     "@mui/icons-material": "^7.3.8",
     "@mui/material": "^7.3.8",
     "@reduxjs/toolkit": "^2.11.2",

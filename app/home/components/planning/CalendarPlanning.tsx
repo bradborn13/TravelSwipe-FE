@@ -1,28 +1,32 @@
-import { useState, useEffect, useMemo, Fragment, act } from 'react'
+import { useState, useEffect, useMemo, useRef, Fragment } from 'react'
 import { DragDropProvider } from '@dnd-kit/react'
 import type { DragEndEvent } from '@dnd-kit/react'
 import styles from './styles/CalendarPlanning.module.css'
-import { HOURS, formatHour, isSlotCovered } from './utility/calendarUtils'
+import { HOURS, SLOT_HEIGHT, formatHour, isSlotCovered } from './utility/calendarUtils'
 import { HourSlot } from './HourSlot'
 import { DraggableActivity } from './DraggableActivity'
 import { Activity } from '../../types/Activity'
 import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MapRoute } from '@/components/ui/map'
-import { MapPin } from 'lucide-react'
-import { Card } from '@mui/material'
 import { ScheduledActivity } from './utility/calendarTypes'
 
 export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }) => {
   const [scheduled, setScheduled] = useState<ScheduledActivity[]>([])
-  const inPlanLocationCoordinates = useMemo(() => {
-    return scheduled
-      ?.sort((a, b) => a.startHour - b.startHour)
-      .map((x): [number, number] => {
-        return [x.activity.longitude, x.activity.latitude]
-      })
-  }, [scheduled])
+  // the day's stops in time order: one numbering shared by the map pins, the day blocks and the list
+  const stops = useMemo(() => [...scheduled].sort((a, b) => a.startHour - b.startHour), [scheduled])
+  const stopNumber = useMemo(() => new globalThis.Map(stops.map((s, i) => [s.id, i + 1])), [stops])
+  const inPlanLocationCoordinates = useMemo(
+    () => stops.map((x): [number, number] => [x.activity.longitude, x.activity.latitude]),
+    [stops],
+  )
   useEffect(() => {
     setScheduled([])
   }, [activityList])
+
+  // open the day at 8 AM rather than midnight
+  const timeGridRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (timeGridRef.current) timeGridRef.current.scrollTop = 8 * SLOT_HEIGHT
+  }, [])
   const handleRemove = (id: string) => {
     setScheduled((prev) => prev.filter((s) => s.id !== id))
   }
@@ -82,94 +86,98 @@ export const CalendarPlanning = ({ activityList }: { activityList?: Activity[] }
             startHour: hour,
             // Preserve custom duration if the activity was already on the calendar
             durationHours: existing?.durationHours ?? 1,
-            color: existing?.color ?? '#4A90E2',
+            color: existing?.color ?? '#1d5fd6',
             activity: activity,
           },
         ]
       })
     }
   }
-  console.log(activityList)
-  return (
-    <div>
-      <DragDropProvider onDragEnd={handleDragEnd}>
-        <div className="flex flex-row justify-between gap-2">
-          <div className={styles['grid-calendar']}>
-            <div className={styles['grid-header']}>
-              <div>
-                {/* <h3>{CurrentDate()}</h3> */}
-                <p>
-                  {scheduled.length} activities · ~ {plannedEventsTime}h planned
-                </p>
-              </div>
-              <div className={styles['grid-panel-a']}>
-                <span className={styles['grid-panel-b']}>Clear day</span>
-              </div>
-            </div>
-            <div className={styles['time-grid']}>
-              {HOURS.map((hour) => {
-                const event = scheduled.find((a) => a.startHour === hour)
-                const covered = isSlotCovered(scheduled, hour)
-                return (
-                  <Fragment key={hour}>
-                    <div className={styles['timeLabel']}>
-                      {Number.isInteger(hour) ? formatHour(hour) : ''}
-                    </div>
-                    <HourSlot
-                      hour={hour}
-                      event={event}
-                      isCovered={covered}
-                      onRemove={handleRemove}
-                      onChangeDuration={handleChangeDuration}
-                    />
-                  </Fragment>
-                )
-              })}
-            </div>
-          </div>
-          <Card className={styles['map-planning']}>
-            {activityList && activityList.length > 0 && (
-              <Map
-                center={[activityList[0].longitude, activityList[0].latitude]}
-                zoom={15}
-                theme={'light'}
-                className={styles['map-planning-01']}
-              >
-                {activityList && inPlanLocationCoordinates && inPlanLocationCoordinates.length > 1 && (
-                  <MapRoute coordinates={inPlanLocationCoordinates} color="#3b82f6" width={4} opacity={0.8} />
-                )}
+  const plannedLabel =
+    scheduled.length === 0
+      ? 'Drag an activity onto a time'
+      : `${scheduled.length} ${scheduled.length === 1 ? 'stop' : 'stops'} · ${plannedEventsTime} h planned`
 
-                {scheduled &&
-                  scheduled.length > 0 &&
-                  scheduled.map((x) => {
-                    return (
-                      <MapMarker key={x.id} longitude={x.activity.longitude} latitude={x.activity.latitude}>
-                        <MarkerContent>
-                          <div className="cursor-move">
-                            <MapPin className="fill-black stroke-white dark:fill-white" size={28} />
-                          </div>
-                        </MarkerContent>
-                        <MarkerPopup>{x.activity.name}</MarkerPopup>
-                      </MapMarker>
-                    )
-                  })}
-                <MapControls />
-              </Map>
-            )}
-          </Card>
-          <div className={styles['activity-sidebar']}>
-            <div className={styles['pool-panel']}>
-              <div className={styles['pool-title']}>All Activities</div>
-              <div className={styles['pool-sub']}>Drag any card onto the time grid →</div>
-              <div className={styles['pool-list']}>
-                {activityList?.map((activity: Activity) => (
-                  <DraggableActivity key={activity.id} activity={activity} />
-                ))}
-              </div>
+  return (
+    <DragDropProvider onDragEnd={handleDragEnd}>
+      <div className={styles.planner}>
+        <section className={`${styles.panel} ${styles['activity-sidebar']}`} aria-labelledby="pool-title">
+          <div className={styles.panelHeader}>
+            <div>
+              <h2 id="pool-title" className={styles.panelTitle}>
+                Activities
+              </h2>
+              <p className={styles.panelSub}>
+                {activityList?.length ?? 0} to choose from · drag one into your day
+              </p>
             </div>
           </div>
-        </div>
-      </DragDropProvider>
-    </div>
+          <ul className={styles['pool-list']}>
+            {activityList?.map((activity: Activity) => (
+              <DraggableActivity key={activity.id} activity={activity} stop={stopNumber.get(activity.id)} />
+            ))}
+          </ul>
+        </section>
+
+        <section className={`${styles.panel} ${styles.day}`} aria-labelledby="day-title">
+          <div className={styles.panelHeader}>
+            <div>
+              <h2 id="day-title" className={styles.panelTitle}>
+                Your day
+              </h2>
+              <p className={styles.panelSub}>{plannedLabel}</p>
+            </div>
+            <button className={styles.clearButton} disabled={scheduled.length === 0} onClick={() => setScheduled([])}>
+              Clear day
+            </button>
+          </div>
+          <div className={styles['time-grid']} ref={timeGridRef}>
+            {HOURS.map((hour) => {
+              const event = scheduled.find((a) => a.startHour === hour)
+              const covered = isSlotCovered(scheduled, hour)
+              return (
+                <Fragment key={hour}>
+                  <div className={styles['timeLabel']}>{Number.isInteger(hour) ? formatHour(hour) : ''}</div>
+                  <HourSlot
+                    hour={hour}
+                    event={event}
+                    stop={event ? stopNumber.get(event.id) : undefined}
+                    isCovered={covered}
+                    onRemove={handleRemove}
+                    onChangeDuration={handleChangeDuration}
+                  />
+                </Fragment>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className={`${styles.panel} ${styles['map-planning']}`} aria-label="Route map">
+          {activityList && activityList.length > 0 ? (
+            <Map
+              center={[activityList[0].longitude, activityList[0].latitude]}
+              zoom={15}
+              theme={'light'}
+              className={styles['map-planning-01']}
+            >
+              {inPlanLocationCoordinates.length > 1 && (
+                <MapRoute coordinates={inPlanLocationCoordinates} color="#1d5fd6" width={4} opacity={0.8} />
+              )}
+              {stops.map((x, i) => (
+                <MapMarker key={x.id} longitude={x.activity.longitude} latitude={x.activity.latitude}>
+                  <MarkerContent>
+                    <div className={styles.mapPin}>{i + 1}</div>
+                  </MarkerContent>
+                  <MarkerPopup>{x.activity.name}</MarkerPopup>
+                </MapMarker>
+              ))}
+              <MapControls />
+            </Map>
+          ) : (
+            <div className={styles.mapEmpty}>The map appears once there are activities.</div>
+          )}
+        </section>
+      </div>
+    </DragDropProvider>
   )
 }
