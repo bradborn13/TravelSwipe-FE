@@ -1,23 +1,20 @@
 'use client'
 
-import {
-  Button,
-  Box,
-  Typography,
-  Dialog,
-  DialogContent,
-  Divider,
-  IconButton,
-  TextField,
-  Snackbar,
-  Alert,
-} from '@mui/material'
+import { Snackbar, Alert } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
-import CloseIcon from '@mui/icons-material/Close'
-import GoogleIcon from '@mui/icons-material/Google'
-import FacebookIcon from '@mui/icons-material/Facebook'
+import { X } from 'lucide-react'
+import { FaFacebook, FaGoogle } from 'react-icons/fa'
 import { login, register } from '../../services/authService'
 import PersonPinIcon from '@mui/icons-material/PersonPin'
+
+// Bootstrap's reboot and the global `* { margin: 0; padding: 0 }` reset are unlayered, so they beat
+// Tailwind's layered utilities: spacing, and the font-size/radius/display Bootstrap sets on these
+// elements, carry `!` to win
+const labelClass = 'mb-1.5! block! text-[13px] font-medium text-(--text)'
+const inputClass =
+  'h-11 w-full rounded-(--radius-control)! border border-(--control) bg-(--surface) px-3.5! text-sm! text-(--text) outline-none transition-shadow placeholder:text-(--muted) hover:border-[#b9bdc3] focus:border-(--text) focus:shadow-[0_0_0_4px_rgba(27,29,31,0.06)]'
+const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--text)'
+const socialButtonClass = `flex h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-full! border border-(--control) bg-(--surface) text-sm! font-medium text-(--text) transition-colors hover:border-[#b9bdc3] hover:bg-(--active) ${focusRing}`
 
 enum AuthOption {
   Login = 1,
@@ -42,6 +39,15 @@ export default function Login() {
   const [authOption, setAuthOption] = useState<AuthOption>(AuthOption.Register)
   const [authForm, updateAuthForm] = useState<AuthForm>({ email: '', password: '', fullname: '' })
   const [userIsLogged, setUserIsLogged] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  // a native <dialog> as a modal: it traps focus, closes on Esc and draws its own backdrop
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    if (modalOpen && !dialog.open) dialog.showModal()
+    if (!modalOpen && dialog.open) dialog.close()
+  }, [modalOpen])
 
   useEffect(() => {
     const messageListener = (event: MessageEvent) => {
@@ -132,122 +138,134 @@ export default function Login() {
         aria-pressed={userIsLogged}
         title={userIsLogged ? 'Sign out' : 'Sign in'}
       >
-        <PersonPinIcon sx={{ fontSize: 20 }} />
+        <PersonPinIcon className="text-[20px]!" />
       </button>
 
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} fullWidth maxWidth="xs">
-        {/* Close Button */}
-        <IconButton
-          onClick={() => setModalOpen(false)}
-          sx={{ position: 'absolute', right: 16, top: 16, color: 'grey.500' }}
-        >
-          <CloseIcon />
-        </IconButton>
+      <dialog
+        ref={dialogRef}
+        aria-labelledby="auth-title"
+        onClose={() => setModalOpen(false)}
+        // a click on the backdrop lands on the dialog element itself
+        onClick={(e) => e.target === e.currentTarget && setModalOpen(false)}
+        className="m-auto! w-[calc(100%-32px)] max-w-[400px] rounded-(--radius-card) bg-(--surface) p-0! text-(--text) shadow-[0_24px_64px_rgba(27,29,31,0.18)] backdrop:bg-[rgba(27,29,31,0.4)]"
+      >
+        <div className="relative px-7! pt-8! pb-6!">
+          <button
+            type="button"
+            onClick={() => setModalOpen(false)}
+            aria-label="Close"
+            className={`absolute top-3.5 right-3.5 flex size-8 cursor-pointer items-center justify-center rounded-full! text-(--muted) transition-colors hover:bg-(--active) hover:text-(--text) ${focusRing}`}
+          >
+            <X size={18} />
+          </button>
 
-        <DialogContent className="flex flex-col items-center">
-          <Typography variant="h4" className="font-bold text-gray-800 mb-3">
-            {authOption === AuthOption.Register ? 'Create Account' : 'Login'}
-          </Typography>
-          <Box className="w-full flex flex-col gap-4">
+          <h2
+            id="auth-title"
+            className="m-0! font-['Playfair_Display',serif] text-[28px]! leading-[1.2]! font-bold! tracking-[-0.01em] text-(--text)!"
+          >
+            {authOption === AuthOption.Register ? 'Create your account' : 'Welcome back'}
+          </h2>
+          <p className="mt-1.5! mb-6! text-sm text-(--muted-text)">
+            {authOption === AuthOption.Register
+              ? 'Save activities and plan your days.'
+              : 'Log in to pick up where you left off.'}
+          </p>
+
+          {/* one form around the fields, so Enter in any of them submits */}
+          <form onSubmit={handleUserAuth} className="flex flex-col gap-3.5">
             {authOption === AuthOption.Register && (
-              <div className="flex flex-col gap-1">
-                <Typography variant="caption" className="font-bold text-gray-700 ml-1">
-                  Full Name
-                </Typography>
-                <TextField
-                  fullWidth
+              <div>
+                <label htmlFor="auth-fullname" className={labelClass}>
+                  Full name
+                </label>
+                <input
+                  id="auth-fullname"
+                  autoComplete="name"
                   value={authForm.fullname}
                   onChange={(e) => updateAuthForm((prev) => ({ ...prev, fullname: e.target.value }))}
-                  placeholder="Enter your name"
-                  variant="outlined"
-                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: '#f3f4f6' } }}
+                  placeholder="Your name"
+                  className={inputClass}
                 />
               </div>
             )}
 
-            <div className="flex flex-col gap-1">
-              <Typography variant="caption" className="font-bold text-gray-700 ml-1">
+            <div>
+              <label htmlFor="auth-email" className={labelClass}>
                 Email
-              </Typography>
-              <TextField
-                fullWidth
+              </label>
+              <input
+                id="auth-email"
+                type="email"
+                autoComplete="email"
                 value={authForm.email}
                 onChange={(e) => updateAuthForm((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder="Enter your email"
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: '#f3f4f6' } }}
+                placeholder="you@example.com"
+                className={inputClass}
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <Typography variant="caption" className="font-bold text-gray-700 ml-1">
+            <div>
+              <label htmlFor="auth-password" className={labelClass}>
                 Password
-              </Typography>
-              <TextField
-                fullWidth
+              </label>
+              <input
+                id="auth-password"
                 type="password"
+                autoComplete={authOption === AuthOption.Register ? 'new-password' : 'current-password'}
                 value={authForm.password}
                 onChange={(e) => updateAuthForm((prev) => ({ ...prev, password: e.target.value }))}
-                placeholder={authOption === AuthOption.Register ? 'Create a password' : 'Enter your password'}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: '#f3f4f6' } }}
+                placeholder={authOption === AuthOption.Register ? 'Create a password' : 'Your password'}
+                className={inputClass}
               />
             </div>
-            <form onSubmit={handleUserAuth}>
-              <Button
-                fullWidth
-                variant="contained"
-                size="large"
-                type="submit"
-                className="mt-4 py-3 normal-case text-lg font-bold"
-                style={{ backgroundColor: 'var(--primary)', borderRadius: 100, boxShadow: 'none' }}
-              >
-                {authOption === AuthOption.Register ? 'Create Account' : 'Login'}
-              </Button>
-            </form>
-          </Box>
 
-          <div className="w-full mt-4">
-            <Divider className="text-gray-400 text-xs pb-4 uppercase">Or sign up with</Divider>
+            <button
+              type="submit"
+              className={`mt-1.5! h-11 w-full cursor-pointer rounded-full! bg-(--primary) text-[15px]! font-semibold text-(--white) transition-colors hover:bg-black ${focusRing}`}
+            >
+              {authOption === AuthOption.Register ? 'Create account' : 'Log in'}
+            </button>
+          </form>
 
-            <div className="flex gap-4">
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<GoogleIcon />}
-                onClick={() => {
-                  googleAuth()
-                }}
-                className="py-2 border-gray-300 text-gray-700 normal-case rounded-xl"
-              >
-                Google
-              </Button>
-              <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<FacebookIcon />}
-                onClick={() => {
-                  /* Your fbAuth logic */
-                }}
-                className="py-2 border-gray-300 text-gray-700 normal-case rounded-xl"
-              >
-                Facebook
-              </Button>
-            </div>
+          <div className="my-5! flex items-center gap-3 text-xs text-(--muted) before:h-px before:flex-1 before:bg-(--border) after:h-px after:flex-1 after:bg-(--border)">
+            or continue with
           </div>
 
-          <Typography variant="body2" className="pt-3 text-gray-500">
-            {authOption === AuthOption.Register ? 'Already have an account?' : 'Dont have an account?'}
-            <span
-              className="cursor-pointer font-bold mx-2 underline"
-              style={{ color: 'var(--text)' }}
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                googleAuth()
+              }}
+              className={socialButtonClass}
+            >
+              <FaGoogle size={16} /> Google
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                /* Your fbAuth logic */
+              }}
+              className={socialButtonClass}
+            >
+              <FaFacebook size={16} /> Facebook
+            </button>
+          </div>
+
+          <p className="mt-5! text-center text-sm text-(--muted-text)">
+            {authOption === AuthOption.Register ? 'Already have an account?' : "Don't have an account?"}
+            <button
+              type="button"
               onClick={() =>
                 setAuthOption(authOption === AuthOption.Login ? AuthOption.Register : AuthOption.Login)
               }
+              className={`ml-1! cursor-pointer rounded-[4px]! px-0.5! font-semibold text-(--text) underline underline-offset-3 ${focusRing}`}
             >
-              {authOption === AuthOption.Register ? 'Login' : 'Register'}
-            </span>
-          </Typography>
-        </DialogContent>
-      </Dialog>
+              {authOption === AuthOption.Register ? 'Log in' : 'Sign up'}
+            </button>
+          </p>
+        </div>
+      </dialog>
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={notification.isOpen}
@@ -258,7 +276,7 @@ export default function Login() {
           onClose={() => setNotification({ isOpen: false, message: '', type: '' })}
           variant="filled"
           severity={notification.type as 'success' | 'error' | 'warning' | 'info'}
-          sx={{ width: '100%' }}
+          className="w-full!"
         >
           {notification.message}
         </Alert>
